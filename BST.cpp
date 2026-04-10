@@ -1,0 +1,106 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node *left, *right;
+};
+
+class BST {
+public:
+    Node* root = NULL;
+
+    // Insert - O(log n) avg, O(n) worst
+    Node* insert(Node* node, int val) {
+        if (node == NULL) {
+            return new Node{val, NULL, NULL};
+        }
+
+        if (val < node->data)
+            node->left = insert(node->left, val);
+        else
+            node->right = insert(node->right, val);
+
+        return node;
+    }
+
+    // Search - O(log n) avg
+    bool search(Node* node, int key) {
+        if (node == NULL) return false;
+
+        if (node->data == key) return true;
+        if (key < node->data)
+            return search(node->left, key);
+        else
+            return search(node->right, key);
+    }
+
+    // Find minimum value node
+    Node* findMin(Node* node) {
+        while (node && node->left != NULL)
+            node = node->left;
+        return node;
+    }
+
+    // Delete - O(log n) avg
+    Node* deleteNode(Node* node, int key) {
+        if (node == NULL) return node;
+
+        if (key < node->data)
+            node->left = deleteNode(node->left, key);
+        else if (key > node->data)
+            node->right = deleteNode(node->right, key);
+        else {
+            // Node with one or no child
+            if (node->left == NULL) {
+                Node* temp = node->right;
+                delete node;
+                return temp;
+            }
+            else if (node->right == NULL) {
+                Node* temp = node->left;
+                delete node;
+                return temp;
+            }
+
+            // Node with two children
+            Node* temp = findMin(node->right);
+            node->data = temp->data;
+            node->right = deleteNode(node->right, temp->data);
+        }
+
+        return node;
+    }
+
+    // Inorder traversal - O(n)
+    void inorder(Node* node) {
+        if (node == NULL) return;
+        inorder(node->left);
+        cout << node->data << " ";
+        inorder(node->right);
+    }
+};
+
+// Driver code
+int main() {
+    BST tree;
+
+    tree.root = tree.insert(tree.root, 50);
+    tree.insert(tree.root, 30);
+    tree.insert(tree.root, 70);
+    tree.insert(tree.root, 20);
+    tree.insert(tree.root, 40);
+
+    cout << "Inorder: ";
+    tree.inorder(tree.root);
+    cout << endl;
+
+    cout << "Search 40: " << tree.search(tree.root, 40) << endl;
+
+    tree.root = tree.deleteNode(tree.root, 30);
+
+    cout << "After deletion: ";
+    tree.inorder(tree.root);
+
+    return 0;
+}
